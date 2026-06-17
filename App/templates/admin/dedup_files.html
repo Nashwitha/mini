@@ -1,0 +1,91 @@
+{% extends 'admin/adminbase.html' %}
+{% block title %}Admin - Deduplication Audit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-1 fw-bold text-dark">Deduplicated File Audit</h2>
+            <p class="text-muted small">Managing storage efficiency by tracking identical file hashes across the userbase.</p>
+        </div>
+        <div class="stats-box d-flex gap-3">
+            <div class="card px-3 py-2 border-0 shadow-sm bg-primary text-white text-center">
+                <span class="small opacity-75 d-block">Unique Hashes</span>
+                <span class="h5 mb-0 fw-bold">{{ files|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="ps-4" style="width: 25%;">File Hash (SHA-256)</th>
+                        <th class="text-center">Upload Count</th>
+                        <th>Associated Users</th>
+                        <th class="pe-4 text-end">Audit Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-fingerprint text-primary me-2"></i>
+                                <code class="small text-break bg-light p-1 rounded">{{ file.hash }}</code>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if file.count > 1 %}bg-warning text-dark{% else %}bg-light text-muted border{% endif %} rounded-pill px-3">
+                                {{ file.count }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for r in file.records %}
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle small fw-normal">
+                                        {{ r.user.username }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Audit Files
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><h6 class="dropdown-header">Select User Record</h6></li>
+                                    {% for r in file.records %}
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="/Admins/audit/{{ r.id }}/">
+                                            <span>User: <strong>{{ r.user.username }}</strong></span>
+                                            <i class="bi bi-chevron-right small text-muted"></i>
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <i class="bi bi-shield-slash d-block mb-2 text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted">No deduplicated records found in the database.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-info-subtle { background-color: #e0f7fa !important; }
+    .text-info { color: #00838f !important; }
+    .dropdown-item:active { background-color: var(--bs-primary); }
+</style>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'admin/adminbase.html' %}
+{% block title %}Admin - User Management{% endblock %}
+
+{% block content %}
+
+<h2>Audit Result</h2>
+
+<p><b>File:</b> {{ file.file_name }}</p>
+<p><b>Hash:</b> {{ file.file_hash }}</p>
+<p><b>Blockchain TX:</b> {{ file.blockchain_tx }}</p>
+
+<h3>Status: {{ status }}</h3>
+
+{% endblock %}

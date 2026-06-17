@@ -1,0 +1,109 @@
+{% extends 'user/userbase.html' %}
+{% block title %}My Vault{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-0 fw-bold">Financial Records</h2>
+            <p class="text-muted small">Verified assets stored on-chain</p>
+        </div>
+        <span class="badge bg-primary rounded-pill px-3 py-2">{{ files|length }} Documents</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">Type</th>
+                        <th>File Details</th>
+                        <th>Verification</th>
+                        <th class="pe-4 text-end">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="rounded border d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 100px; height: 100px; overflow: hidden;">
+                                {% if file.file and file.extension in '.jpg .jpeg .png .gif' %}
+                                    <img src="{{ file.file.url }}" class="img-fluid" style="object-fit: cover; height: 100%;">
+                                {% elif file.extension == '.pdf' %}
+                                    <i class="bi bi-file-earmark-pdf text-danger fs-3"></i>
+                                {% elif file.extension == '.docx' or file.extension == '.doc' %}
+                                    <i class="bi bi-file-earmark-word text-primary fs-3"></i>
+                                {% else %}
+                                    <i class="bi bi-file-earmark-text text-secondary fs-3"></i>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ file.file_name }}</div>
+                            <div class="text-muted extra-small" style="font-size: 0.75rem;">{{ file.extension|upper|cut:"." }} Document</div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#hash{{ forloop.counter }}">
+                                    <i class="bi bi-hash"></i> Hash
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#tx{{ forloop.counter }}">
+                                    <i class="bi bi-link-45deg"></i> TX
+                                </button>
+                            </div>
+                        </td>
+                        <td class="pe-4 text-end text-muted small">
+                            {{ file.uploaded_at|date:"M d, Y" }}
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="hash{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content shadow">
+                                <div class="modal-header border-0">
+                                    <h6 class="modal-title">SHA-256 Fingerprint</h6>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="p-3 bg-light rounded border text-break font-monospace small position-relative">
+                                        {{ file.file_hash }}
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button class="btn btn-sm btn-primary w-100" onclick="navigator.clipboard.writeText('{{ file.file_hash }}')">
+                                        Copy Hash to Clipboard
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="tx{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content shadow border-0">
+                                <div class="modal-header bg-dark text-white">
+                                    <h6 class="modal-title text-white"><i class="bi bi-shield-check me-2"></i>Blockchain Receipt</h6>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center p-4">
+                                    <p class="text-muted small">Transaction Identifier:</p>
+                                    <code class="d-block p-2 bg-light mb-3 text-break">{{ file.blockchain_tx }}</code>
+                                    <a href="#" class="btn btn-outline-dark btn-sm rounded-pill">View on Explorer</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
